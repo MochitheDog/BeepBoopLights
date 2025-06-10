@@ -15,7 +15,12 @@ public class LightButton : MonoBehaviour
 
     public bool IsLit { get; private set; }
 
-    public List<LightButton> AdjacentLights = new List<LightButton>();
+    public List<LightButton> adjacentLights = new List<LightButton>();
+    public List<LightButton> AdjacentLights
+    {
+        get { return adjacentLights; }
+        private set { adjacentLights = value; }
+    }
 
     // Action is a delegate with void return and 0 args
     // Use Action instead of UnityEvent because don't need Inspector functionality
@@ -71,9 +76,14 @@ public class LightButton : MonoBehaviour
 
     private void ToggleAdjacentLights()
     {
-        foreach (var light in adjacentLights)
+        foreach (var light in AdjacentLights)
         {
             light.ToggleLight();
         }
+    }
+
+    public void SetAdjacentLights(List<LightButton> adjacents)
+    {
+        AdjacentLights = adjacents;
     }
 }

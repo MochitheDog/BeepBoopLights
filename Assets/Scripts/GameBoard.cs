@@ -21,7 +21,7 @@ public class GameBoard : MonoBehaviour
 
     private void OnLightClicked()
     {
-        Debug.Log("AAAA CLIKED");
+        
     }
 
     private void Start()
@@ -78,7 +78,7 @@ public class GameBoard : MonoBehaviour
                 var rightButton = GetLightButton(i, j+1);
                 if (rightButton != null) adjacents.Add(rightButton);
 
-                row.lightButtons[j].AdjacentLights = adjacents;
+                row.lightButtons[j].SetAdjacentLights(adjacents);
                 row.lightButtons[j].SetState(false);
             }
         }
