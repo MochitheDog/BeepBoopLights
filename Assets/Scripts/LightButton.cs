@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,28 +15,31 @@ public class LightButton : MonoBehaviour
 
     public bool IsLit { get; private set; }
 
-    private List<LightButton> adjacentLights = new List<LightButton>();
-    public List<LightButton> AdjacentLights
-    {
-        get => adjacentLights;
-        set => adjacentLights = value;
-    }
+    public List<LightButton> AdjacentLights = new List<LightButton>();
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    // Action is a delegate with void return and 0 args
+    // Use Action instead of UnityEvent because don't need Inspector functionality
+    // and Action is faster and has less overhead (no reflection needed)
+    // Invoke this Action whenever any LightButton is clicked (static)
+    public static event Action OnLightButtonClicked;
+
+    void Awake()
     {
-        image = GetComponent<Image>();
-        button = GetComponent<Button>();
-        button.onClick.AddListener(ToggleLight);
+        // Using GetComponent? Should be fine for now
+        // Alternatively, could link the reference using SerializeField and the Inspector
+        // but this is pretty easy and not thinking about probably-micro optimizations right now
+        image = this.transform.GetComponent<Image>();
+        button = this.transform.GetComponent<Button>();
     }
 
     private void OnEnable()
     {
+        button.onClick.AddListener(ToggleLightButtonCommand);
     }
 
     private void OnDisable()
     {
-        //button.onClick.RemoveAllListeners();
+        button.onClick.RemoveAllListeners();
     }
 
     private void SetLightColorFromState()
@@ -47,6 +51,16 @@ public class LightButton : MonoBehaviour
     {
         IsLit = isLit;
         SetLightColorFromState();
+    }
+
+    /// <summary>
+    /// Function to be called when the LightButton is clicked
+    /// </summary>
+    public void ToggleLightButtonCommand()
+    {
+        ToggleLight();
+        ToggleAdjacentLights();
+        OnLightButtonClicked?.Invoke();
     }
 
     public void ToggleLight()

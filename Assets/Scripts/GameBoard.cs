@@ -17,9 +17,42 @@ public class GameBoard : MonoBehaviour
     }
     private GameState gameState = GameState.IDLE;
 
+   
+
+    private void OnLightClicked()
+    {
+        Debug.Log("AAAA CLIKED");
+    }
+
     private void Start()
     {
         InitLightButtons();
+    }
+
+    private void OnEnable()
+    {
+        LightButton.OnLightButtonClicked += OnLightClicked;
+    }
+
+    private void OnDisable()
+    {
+        LightButton.OnLightButtonClicked -= OnLightClicked;
+    }
+
+    // Check if the player WON
+    public bool IsBoardSolved()
+    {
+        for (int i = 0; i < lightsGrid.Count; i++)
+        {
+            for (int j = 0; j < lightsGrid[i].lightButtons.Count; j++)
+            {
+                if (lightsGrid[i].lightButtons[j].IsLit)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     // Set up the buttons' adjacency lists programmatically because doing it in editor will take forever
@@ -46,6 +79,7 @@ public class GameBoard : MonoBehaviour
                 if (rightButton != null) adjacents.Add(rightButton);
 
                 row.lightButtons[j].AdjacentLights = adjacents;
+                row.lightButtons[j].SetState(false);
             }
         }
     }
@@ -74,6 +108,12 @@ public class GameBoard : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Return a particular LightButton at the given coordinates
+    /// </summary>
+    /// <param name="row">Vertical position</param>
+    /// <param name="col">Horizontal position</param>
+    /// <returns></returns>
     private LightButton GetLightButton(int row, int col)
     {
         if ( ( row >= 0 && row < lightsGrid.Count ) &&
