@@ -71,7 +71,13 @@ public class LightButton : MonoBehaviour
         OnLightButtonClicked?.Invoke();
     }
 
-    public void ToggleLight()
+    public void ToggleLightAndAdjacents()
+    {
+        ToggleLight();
+        ToggleAdjacentLights();
+    }
+
+    private void ToggleLight()
     {
         IsLit = !IsLit;
         SetLightColorFromState();

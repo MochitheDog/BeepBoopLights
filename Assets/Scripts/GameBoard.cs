@@ -55,6 +55,7 @@ public class GameBoard : MonoBehaviour
     // Reset the board to a new random solvable state by turning everything off and then toggling lights at random
     public void ResetAndRandomizeBoard()
     {
+        bool isGoodBoard = false;
         foreach (var row in LightsGrid)
         {
             foreach (var light in row.lightButtons)
@@ -69,9 +70,19 @@ public class GameBoard : MonoBehaviour
                 var rand = Random.Range(0, 2);
                 if (rand == 1)
                 {
-                    light.ToggleLight();
+                    isGoodBoard = true;
+                    light.ToggleLightAndAdjacents();
                 }
             }
+        }
+        // I suppose it's possible to make this even more random by randomizing the order that
+        // the lights get processed
+
+        // Very slight chance that every random roll is 0
+        // so if that happens let's just roll again i guess
+        if (!isGoodBoard)
+        {
+            ResetAndRandomizeBoard();
         }
     }
 
