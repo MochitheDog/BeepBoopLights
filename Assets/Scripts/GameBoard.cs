@@ -10,6 +10,9 @@ public class GameBoard : MonoBehaviour
     private const int GRID_WIDTH = 5;
     private const int GRID_HEIGHT = 5;
 
+    // Don't want to populate this programatically
+    // to avoid using GameObject.FindGameObjects... etc/GameObject.Find
+    // since those are costly and slow (loops through every GameObject)
     [SerializeField]
     private List<LightButtonRow> lightsGrid = new List<LightButtonRow>();
     public List<LightButtonRow> LightsGrid
@@ -30,7 +33,7 @@ public class GameBoard : MonoBehaviour
         for (int i = 0; i < LightsGrid.Count; i++)
         {
             var row = LightsGrid[i];
-            for (int j = 0; j < row.lightButtons.Count; j++)
+            for (int j = 0; j < row.LightButtons.Count; j++)
             {
                 List<LightButton> adjacents = new List<LightButton>();
                 // up
@@ -46,26 +49,28 @@ public class GameBoard : MonoBehaviour
                 var rightButton = GetLightButton(i, j+1);
                 if (rightButton != null) adjacents.Add(rightButton);
 
-                row.lightButtons[j].SetAdjacentLights(adjacents);
-                row.lightButtons[j].SetLitState(false);
+                row.LightButtons[j].SetAdjacentLights(adjacents);
+                row.LightButtons[j].SetLitState(false);
             }
         }
     }
 
-    // Reset the board to a new random solvable state by turning everything off and then toggling lights at random
+    /// <summary>
+    /// Reset the board to a new random solvable state by turning everything off and then toggling lights at random
+    /// </summary>
     public void ResetAndRandomizeBoard()
     {
         bool isGoodBoard = false;
         foreach (var row in LightsGrid)
         {
-            foreach (var light in row.lightButtons)
+            foreach (var light in row.LightButtons)
             {
                 light.SetLitState(false);
             }
         }
         foreach (var row in LightsGrid)
         {
-            foreach (var light in row.lightButtons)
+            foreach (var light in row.LightButtons)
             {
                 var rand = Random.Range(0, 2);
                 if (rand == 1)
@@ -95,23 +100,45 @@ public class GameBoard : MonoBehaviour
     private LightButton GetLightButton(int row, int col)
     {
         if ( ( row >= 0 && row < LightsGrid.Count ) &&
-            (col >= 0 && col < LightsGrid[row].lightButtons.Count ) )
+            (col >= 0 && col < LightsGrid[row].LightButtons.Count ) )
         {
-            return LightsGrid[row].lightButtons[col];
+            return LightsGrid[row].LightButtons[col];
         }
         return null;
     }
 
-    // Making buttons non-interactable is functionally done by the WinScreen
-    // which blocks click raycasts but just in case we need this
+    /// <summary>
+    /// Turn all Buttons' interactables on or off
+    /// </summary>
+    /// <param name="interactable"></param>
     public void SetBoardInteractable(bool interactable)
     {
         foreach (var row in LightsGrid)
         {
-            foreach (var light in row.lightButtons)
+            foreach (var light in row.LightButtons)
             {
                 light.SetInteractable(interactable);
             }
         }
+    }
+
+    /// <summary>
+    /// Check if the player WON
+    /// </summary>
+    /// <returns>True if player solved the board</returns>
+    public bool IsBoardSolved()
+    {
+        foreach (var row in LightsGrid)
+        {
+            foreach (var light in row.LightButtons)
+            {
+                if (light.IsLit)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+        
     }
 }

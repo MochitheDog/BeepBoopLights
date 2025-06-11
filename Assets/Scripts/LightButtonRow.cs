@@ -6,5 +6,10 @@ using UnityEngine;
 /// </summary>
 public class LightButtonRow : MonoBehaviour
 {
-    public List<LightButton> lightButtons;
+    [SerializeField]
+    private List<LightButton> lightButtons;
+    public List<LightButton> LightButtons
+    {
+        get { return lightButtons; }
+    }
 }

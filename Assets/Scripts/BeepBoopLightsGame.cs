@@ -3,19 +3,23 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Main class for BeepBoopLightsGame
-/// Controls overall game functions, with components of other functionality
+/// Main controller class for BeepBoopLightsGame
+/// Controls overall game logic, and game state flow
 /// </summary>
 public class BeepBoopLightsGame : MonoBehaviour
 {
+    // Keeping reference to the GameBoard to be able to control the LightButtons
+    // Trying to keep things modular and decoupled as much as possible so we don't keep many other references
+    // to the Timer, MoveCounter, Buttons on the Lights, etc, using subscribed Actions instead
     [SerializeField]
     private GameBoard gameBoard;
+    // Keep references to the StartScreen and WinScreen objects to show/hide them
+    // Don't need to make another class for them since they're simple
     [SerializeField]
     private GameObject winScreen;
     [SerializeField]
     private GameObject startScreen;
 
-    // Unsure if actually need this or not yet
     private enum GameState
     {
         START,
@@ -31,22 +35,6 @@ public class BeepBoopLightsGame : MonoBehaviour
         gameBoard.SetBoardInteractable(false);
         winScreen.SetActive(false);
         startScreen.SetActive(true);
-    }
-
-    // Check if the player WON
-    public bool IsBoardSolved()
-    {
-        for (int i = 0; i < gameBoard.LightsGrid.Count; i++)
-        {
-            for (int j = 0; j < gameBoard.LightsGrid[i].lightButtons.Count; j++)
-            {
-                if (gameBoard.LightsGrid[i].lightButtons[j].IsLit)
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     private void OnEnable()
@@ -67,6 +55,7 @@ public class BeepBoopLightsGame : MonoBehaviour
         gameState = GameState.WINSCREEN;
         winScreen.SetActive(true);
         gameBoard.SetBoardInteractable(false);
+        // Alert other scripts (Timer) that the game is over
         OnGameWin?.Invoke();
     }
 
@@ -85,10 +74,11 @@ public class BeepBoopLightsGame : MonoBehaviour
         gameBoard.SetBoardInteractable(true);
         gameBoard.ResetAndRandomizeBoard();
     }
+
     private void OnLightClicked()
     {
         // Every time a light is clicked, check the board and change states if needed
-        if (IsBoardSolved())
+        if (gameBoard.IsBoardSolved())
         {
             GoToWinScreenState();
         }
@@ -99,10 +89,6 @@ public class BeepBoopLightsGame : MonoBehaviour
         switch (gameState)
         {
             case GameState.START:
-                {
-                    GoToPlayGameState();
-                    break;
-                }
             case GameState.WINSCREEN:
                 {
                     GoToPlayGameState();

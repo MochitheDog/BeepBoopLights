@@ -1,6 +1,9 @@
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// Class to keep count of the number of moves the player makes in a round
+/// </summary>
 [RequireComponent(typeof(TextMeshProUGUI))]
 public class MoveCounter : MonoBehaviour
 {

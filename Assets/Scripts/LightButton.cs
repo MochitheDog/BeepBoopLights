@@ -22,19 +22,18 @@ public class LightButton : MonoBehaviour
         private set { adjacentLights = value; }
     }
 
-    // Action is a delegate with void return and 0 args
-    // Use Action instead of UnityEvent because don't need Inspector functionality
+    // Use Action instead of UnityEvent because we don't need Inspector functionality
     // and Action is faster and has less overhead (no reflection needed)
     // Invoke this Action whenever any LightButton is clicked (static)
-    // If we didn't have this then every LightButton would have to couple with BeepBoopLightsGame
-    // and also the Move Counter.
+    // Also, if we didn't have this then every LightButton would have to couple with
+    // BeepBoopLightsGame and the MoveCounter.
     public static event Action OnLightButtonClicked;
 
     void Awake()
     {
         // Using GetComponent? Should be fine for now
         // Alternatively, could link the reference using SerializeField and the Inspector
-        // but this is pretty easy, don't have to worry about forgotten/broken links,
+        // but this is easy and fast, don't have to worry about forgotten/broken refs,
         // and not thinking about probably-micro optimizations right now
         image = transform.GetComponent<Image>();
         button = transform.GetComponent<Button>();
