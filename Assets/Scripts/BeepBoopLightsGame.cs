@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -23,11 +24,13 @@ public class BeepBoopLightsGame : MonoBehaviour
     }
     private GameState gameState = GameState.START;
 
+    public static event Action OnGameWin;
+
     void Start()
     {
         gameBoard.SetBoardInteractable(false);
         winScreen.SetActive(false);
-        //startScreen.SetActive(true);
+        startScreen.SetActive(true);
     }
 
     // Check if the player WON
@@ -64,6 +67,7 @@ public class BeepBoopLightsGame : MonoBehaviour
         gameState = GameState.WINSCREEN;
         winScreen.SetActive(true);
         gameBoard.SetBoardInteractable(false);
+        OnGameWin?.Invoke();
     }
 
     // Transition from another state to game mode
@@ -83,6 +87,7 @@ public class BeepBoopLightsGame : MonoBehaviour
     }
     private void OnLightClicked()
     {
+        // Every time a light is clicked, check the board and change states if needed
         if (IsBoardSolved())
         {
             GoToWinScreenState();
@@ -94,15 +99,17 @@ public class BeepBoopLightsGame : MonoBehaviour
         switch (gameState)
         {
             case GameState.START:
+                {
+                    GoToPlayGameState();
+                    break;
+                }
             case GameState.WINSCREEN:
                 {
-                    Debug.Log("AAAA");
                     GoToPlayGameState();
                     break;
                 }
             case GameState.PLAYING:
                 {
-                    Debug.Log("BBBB");
                     gameBoard.ResetAndRandomizeBoard();
                     break;
                 }

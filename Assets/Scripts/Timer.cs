@@ -11,11 +11,11 @@ public class Timer : MonoBehaviour
     private bool isTimerOn;
     private TextMeshProUGUI text;
     private float timerValue;
-    private TimeSpan timeSpan;
+
     void Start()
     {
         timerValue = 0;
-        isTimerOn = true;
+        isTimerOn = false;
     }
 
     private void Awake()
@@ -23,20 +23,43 @@ public class Timer : MonoBehaviour
         text = transform.GetComponent<TextMeshProUGUI>();
     }
 
-    // Using FixedUpdate for timer because 
     private void Update()
     {
         if (isTimerOn)
         {
+            // frame rate-independent time
             timerValue += Time.unscaledDeltaTime;
-            FormatTimerValue();
+            UpdateTimerText();
         }
     }
 
-    private void FormatTimerValue()
+    private void OnEnable()
+    {
+        NewGameButton.OnNewGameButtonClicked += ResetTimer;
+        BeepBoopLightsGame.OnGameWin += StopTimer;
+    }
+
+    private void OnDisable()
+    {
+        NewGameButton.OnNewGameButtonClicked -= ResetTimer;
+        BeepBoopLightsGame.OnGameWin -= StopTimer;
+    }
+
+    private void UpdateTimerText()
     {
         var time = TimeSpan.FromSeconds(timerValue);
         text.SetText(time.ToString(@"mm\:ss"));
     }
 
+    private void ResetTimer()
+    {
+        timerValue = 0;
+        UpdateTimerText();
+        isTimerOn = true;
+    }
+
+    private void StopTimer()
+    {
+        isTimerOn = false;
+    }
 }

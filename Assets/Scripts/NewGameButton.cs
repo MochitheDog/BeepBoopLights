@@ -30,7 +30,6 @@ public class NewGameButton : MonoBehaviour
 
     public void NewGameButtonClicked()
     {
-        Debug.Log("AAAA CLICK");
         OnNewGameButtonClicked?.Invoke();
     }
 }
