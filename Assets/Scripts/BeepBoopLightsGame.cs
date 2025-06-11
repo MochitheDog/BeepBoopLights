@@ -7,21 +7,109 @@ using System.Collections.Generic;
 /// </summary>
 public class BeepBoopLightsGame : MonoBehaviour
 {
+    [SerializeField]
     private GameBoard gameBoard;
-    // Might need a class for the lights objects
-    // functions needed: OnClick->ToggleSelf, ToggleAdjacent -> ToggleAdjacent requires knowledge of other lights -> either make a list of adjacent lights for each light or do it programmatically
-    // CheckBoardState
-    
+    [SerializeField]
+    private GameObject winScreen;
+    [SerializeField]
+    private GameObject startScreen;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // Unsure if actually need this or not yet
+    private enum GameState
+    {
+        START,
+        PLAYING,
+        WINSCREEN,
+    }
+    private GameState gameState = GameState.START;
+
     void Start()
     {
-        
+        gameBoard.SetBoardInteractable(false);
+        winScreen.SetActive(false);
+        //startScreen.SetActive(true);
     }
 
-    // Update is called once per frame
-    void Update()
+    // Check if the player WON
+    public bool IsBoardSolved()
     {
-        
+        for (int i = 0; i < gameBoard.LightsGrid.Count; i++)
+        {
+            for (int j = 0; j < gameBoard.LightsGrid[i].lightButtons.Count; j++)
+            {
+                if (gameBoard.LightsGrid[i].lightButtons[j].IsLit)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private void OnEnable()
+    {
+        LightButton.OnLightButtonClicked += OnLightClicked;
+        NewGameButton.OnNewGameButtonClicked += OnNewGameButtonClicked;
+    }
+
+    private void OnDisable()
+    {
+        LightButton.OnLightButtonClicked -= OnLightClicked;
+        NewGameButton.OnNewGameButtonClicked -= OnNewGameButtonClicked;
+    }
+
+    // Show the Win state from the Playing state
+    private void GoToWinScreenState()
+    {
+        gameState = GameState.WINSCREEN;
+        winScreen.SetActive(true);
+        gameBoard.SetBoardInteractable(false);
+    }
+
+    // Transition from another state to game mode
+    private void GoToPlayGameState()
+    {
+        gameState = GameState.PLAYING;
+        if (winScreen.activeSelf)
+        {
+            winScreen.SetActive(false);
+        }
+        if (startScreen.activeSelf)
+        {
+            startScreen.SetActive(false);
+        }
+        gameBoard.SetBoardInteractable(true);
+        gameBoard.ResetAndRandomizeBoard();
+    }
+    private void OnLightClicked()
+    {
+        if (IsBoardSolved())
+        {
+            GoToWinScreenState();
+        }
+    }
+
+    private void OnNewGameButtonClicked()
+    {
+        switch (gameState)
+        {
+            case GameState.START:
+            case GameState.WINSCREEN:
+                {
+                    Debug.Log("AAAA");
+                    GoToPlayGameState();
+                    break;
+                }
+            case GameState.PLAYING:
+                {
+                    Debug.Log("BBBB");
+                    gameBoard.ResetAndRandomizeBoard();
+                    break;
+                }
+            default:
+                {
+                    break;
+                }
+        }
     }
 }

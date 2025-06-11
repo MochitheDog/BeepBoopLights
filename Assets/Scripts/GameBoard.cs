@@ -3,25 +3,19 @@ using UnityEngine;
 
 /// <summary>
 /// Class to represent the game board/grid of lights
+/// Does not handle game logic! Do not put game logic in here
 /// </summary>
 public class GameBoard : MonoBehaviour
 {
     private const int GRID_WIDTH = 5;
     private const int GRID_HEIGHT = 5;
-    public List<LightButtonRow> lightsGrid = new List<LightButtonRow>();
 
-    private enum GameState
+    [SerializeField]
+    private List<LightButtonRow> lightsGrid = new List<LightButtonRow>();
+    public List<LightButtonRow> LightsGrid
     {
-        IDLE,
-        PLAYING
-    }
-    private GameState gameState = GameState.IDLE;
-
-   
-
-    private void OnLightClicked()
-    {
-        
+        get { return lightsGrid; }
+        private set { lightsGrid = value; }
     }
 
     private void Start()
@@ -29,39 +23,13 @@ public class GameBoard : MonoBehaviour
         InitLightButtons();
     }
 
-    private void OnEnable()
-    {
-        LightButton.OnLightButtonClicked += OnLightClicked;
-    }
-
-    private void OnDisable()
-    {
-        LightButton.OnLightButtonClicked -= OnLightClicked;
-    }
-
-    // Check if the player WON
-    public bool IsBoardSolved()
-    {
-        for (int i = 0; i < lightsGrid.Count; i++)
-        {
-            for (int j = 0; j < lightsGrid[i].lightButtons.Count; j++)
-            {
-                if (lightsGrid[i].lightButtons[j].IsLit)
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     // Set up the buttons' adjacency lists programmatically because doing it in editor will take forever
     // and any mistakes would be hard to find
     private void InitLightButtons()
     {
-        for (int i = 0; i < lightsGrid.Count; i++)
+        for (int i = 0; i < LightsGrid.Count; i++)
         {
-            var row = lightsGrid[i];
+            var row = LightsGrid[i];
             for (int j = 0; j < row.lightButtons.Count; j++)
             {
                 List<LightButton> adjacents = new List<LightButton>();
@@ -79,30 +47,29 @@ public class GameBoard : MonoBehaviour
                 if (rightButton != null) adjacents.Add(rightButton);
 
                 row.lightButtons[j].SetAdjacentLights(adjacents);
-                row.lightButtons[j].SetState(false);
+                row.lightButtons[j].SetLitState(false);
             }
         }
     }
 
     // Reset the board to a new random solvable state by turning everything off and then toggling lights at random
-    private void ResetBoard()
+    public void ResetAndRandomizeBoard()
     {
-        for (int i = 0; i < lightsGrid.Count; i++)
+        foreach (var row in LightsGrid)
         {
-            for (int j = 0; j < lightsGrid[i].lightButtons.Count; j++)
+            foreach (var light in row.lightButtons)
             {
-                lightsGrid[i].lightButtons[j].SetState(false);
+                light.SetLitState(false);
             }
         }
-
-        for (int i = 0; i < lightsGrid.Count; i++)
+        foreach (var row in LightsGrid)
         {
-            for (int j = 0; j < lightsGrid[i].lightButtons.Count; j++)
+            foreach (var light in row.lightButtons)
             {
                 var rand = Random.Range(0, 2);
-                if ( rand == 1 )
+                if (rand == 1)
                 {
-                    lightsGrid[i].lightButtons[j].ToggleLight();
+                    light.ToggleLight();
                 }
             }
         }
@@ -116,11 +83,24 @@ public class GameBoard : MonoBehaviour
     /// <returns></returns>
     private LightButton GetLightButton(int row, int col)
     {
-        if ( ( row >= 0 && row < lightsGrid.Count ) &&
-            (col >= 0 && col < lightsGrid[row].lightButtons.Count ) )
+        if ( ( row >= 0 && row < LightsGrid.Count ) &&
+            (col >= 0 && col < LightsGrid[row].lightButtons.Count ) )
         {
-            return lightsGrid[row].lightButtons[col];
+            return LightsGrid[row].lightButtons[col];
         }
         return null;
+    }
+
+    // Making buttons non-interactable is functionally done by the WinScreen
+    // which blocks click raycasts but just in case we need this
+    public void SetBoardInteractable(bool interactable)
+    {
+        foreach (var row in LightsGrid)
+        {
+            foreach (var light in row.lightButtons)
+            {
+                light.SetInteractable(interactable);
+            }
+        }
     }
 }

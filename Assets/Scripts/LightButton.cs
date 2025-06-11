@@ -15,7 +15,7 @@ public class LightButton : MonoBehaviour
 
     public bool IsLit { get; private set; }
 
-    public List<LightButton> adjacentLights = new List<LightButton>();
+    private List<LightButton> adjacentLights = new List<LightButton>();
     public List<LightButton> AdjacentLights
     {
         get { return adjacentLights; }
@@ -26,15 +26,18 @@ public class LightButton : MonoBehaviour
     // Use Action instead of UnityEvent because don't need Inspector functionality
     // and Action is faster and has less overhead (no reflection needed)
     // Invoke this Action whenever any LightButton is clicked (static)
+    // If we didn't have this then every LightButton would have to couple with BeepBoopLightsGame
+    // and also the Move Counter.
     public static event Action OnLightButtonClicked;
 
     void Awake()
     {
         // Using GetComponent? Should be fine for now
         // Alternatively, could link the reference using SerializeField and the Inspector
-        // but this is pretty easy and not thinking about probably-micro optimizations right now
-        image = this.transform.GetComponent<Image>();
-        button = this.transform.GetComponent<Button>();
+        // but this is pretty easy, don't have to worry about forgotten/broken links,
+        // and not thinking about probably-micro optimizations right now
+        image = transform.GetComponent<Image>();
+        button = transform.GetComponent<Button>();
     }
 
     private void OnEnable()
@@ -52,7 +55,7 @@ public class LightButton : MonoBehaviour
         image.color = IsLit ? litColor : offColor;
     }
 
-    public void SetState( bool isLit )
+    public void SetLitState( bool isLit )
     {
         IsLit = isLit;
         SetLightColorFromState();
@@ -85,5 +88,10 @@ public class LightButton : MonoBehaviour
     public void SetAdjacentLights(List<LightButton> adjacents)
     {
         AdjacentLights = adjacents;
+    }
+
+    public void SetInteractable(bool interactable)
+    {
+        button.interactable = interactable;
     }
 }
